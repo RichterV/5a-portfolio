@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+body {
+    font-family: 'Poppins', sans-serif;
+    scroll-behavior: smooth;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80');
+    background-size: cover;
+    background-position: center;
+    min-height: 80vh;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.carousel-item {
+    min-width: 300px;
+}
+
+@media (min-width: 768px) {
+    .carousel-item {
+        min-width: 400px;
+    }
+}
+
+.map-container {
+    height: 300px;
+    width: 100%;
+}
+
+.active {
+  color: #047857; /* verde */
+  border-bottom: 2px solid #047857;
+}
+
+#carousel {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* Internet Explorer e Edge antigos */
+}
+
+#carousel::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Edge moderno */
+}
+
+
