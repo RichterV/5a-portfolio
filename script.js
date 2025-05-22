@@ -1,5 +1,62 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // ========== Menu dinâmico com destaque ==========
+    // ========== Controle do menu mobile ==========
+    const menuButton = document.getElementById("mobile-menu-button");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    menuButton.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+    });
+
+    // Fecha o menu mobile ao clicar em um link
+    navLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+            if (
+                window.innerWidth < 768 &&
+                !mobileMenu.classList.contains("hidden")
+            ) {
+                mobileMenu.classList.add("hidden");
+            }
+        });
+    });
+
+    // Carrega seções e inicia os scripts
+    loadSectionsAndInit(() => {
+        console.log("Home carregada e scripts iniciados.");
+        initModalTriggers();
+        initCarousel();
+        initNavHighlight(); // destaca com scroll
+        initNavClicks();    // destaca ao clicar
+    });
+});
+
+// Seções a carregar dinamicamente
+const sections = [
+    { id: "home", file: "home.html" },
+    { id: "sobre", file: "sobre.html" },
+    { id: "conteudos", file: "conteudos.html" },
+    { id: "servicos", file: "servicos.html" },
+    { id: "contato", file: "contato.html" },
+    { id: "footer", file: "footer.html" }
+];
+
+// Carrega as seções e executa o callback
+function loadSectionsAndInit(callback) {
+    const promises = sections.map(section =>
+        fetch(section.file)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById(section.id).innerHTML = html;
+            })
+    );
+
+    Promise.all(promises).then(() => {
+        callback();
+    });
+}
+
+// ========== Destaque dinâmico da navbar ==========
+function initNavHighlight() {
     const sections = document.querySelectorAll("section");
     const navLinks = document.querySelectorAll(".nav-link");
 
@@ -32,69 +89,40 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         },
         {
-            threshold: 0.3,
+            threshold: 0.6,
+            rootMargin: "0px 0px -30% 0px"
         }
     );
 
     sections.forEach((section) => observer.observe(section));
+}
 
-    // ========== Controle do menu mobile ==========
-    const menuButton = document.getElementById("mobile-menu-button");
-    const mobileMenu = document.getElementById("mobile-menu");
+// ========== Destaque manual ao clicar ==========
+function initNavClicks() {
+    const navLinks = document.querySelectorAll(".nav-link");
 
-    menuButton.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
-    });
-
-    // Fecha o menu mobile ao clicar em um link
-    navLinks.forEach((link) => {
+    navLinks.forEach(link => {
         link.addEventListener("click", () => {
-            if (
-                window.innerWidth < 768 &&
-                !mobileMenu.classList.contains("hidden")
-            ) {
-                mobileMenu.classList.add("hidden");
-            }
+            const target = link.dataset.section;
+
+            navLinks.forEach(l => {
+                l.classList.remove("text-green-700", "border-b-2", "border-green-700", "bg-green-50");
+                l.classList.add("text-gray-700");
+            });
+
+            link.classList.add("text-green-700", "border-b-2", "border-green-700", "bg-green-50");
+            link.classList.remove("text-gray-700");
         });
-    });
-
-    // Carregar as sections
-    loadSectionsAndInit(() => {
-        console.log("Home carregada e scripts iniciados.");
-        initModalTriggers(); // esta linha é essencial
-        initCarousel(); // agora chamado após as seções serem carregadas
-    });
-});
-
-const sections = [
-    { id: "home", file: "home.html" },
-    { id: "sobre", file: "sobre.html" },
-    { id: "conteudos", file: "conteudos.html" }
-];
-
-// Função para carregar os HTMLs e iniciar
-function loadSectionsAndInit(callback) {
-    const promises = sections.map(section =>
-        fetch(section.file)
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById(section.id).innerHTML = html;
-            })
-    );
-
-    Promise.all(promises).then(() => {
-        backToTopButton = document.querySelector('.back-to-top');
-        callback();
     });
 }
 
 // ========== Inicialização dos modais ==========
 function initModalTriggers() {
-    // Seleciona todos os botões "Saiba mais" carregados dinamicamente
-    document.querySelectorAll('.open-modal').forEach(link => {
-        link.addEventListener("click", function (e) {
+    document.body.addEventListener("click", function (e) {
+        const target = e.target.closest('.open-modal');
+        if (target) {
             e.preventDefault();
-            const file = this.getAttribute("data-file");
+            const file = target.getAttribute("data-file");
 
             fetch(file)
                 .then(res => res.text())
@@ -102,7 +130,6 @@ function initModalTriggers() {
                     document.getElementById("conteudo-detalhe-modal").innerHTML = html;
                     document.getElementById("modal").classList.remove("hidden");
 
-                    // Botão "voltar" dentro do conteúdo injetado
                     const voltarBtn = document.querySelector('#conteudo-detalhe-modal a[href*="#conteudos"]');
                     if (voltarBtn) {
                         voltarBtn.addEventListener("click", function (e) {
@@ -111,10 +138,9 @@ function initModalTriggers() {
                         });
                     }
                 });
-        });
+        }
     });
 
-    // Botão "X" fecha o modal
     const closeBtn = document.getElementById("closeModal");
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -122,11 +148,10 @@ function initModalTriggers() {
         });
     }
 
-    // Fecha o modal ao clicar fora do conteúdo
     const modal = document.getElementById("modal");
     modal.addEventListener("click", (event) => {
-        // Fecha somente se o clique for no fundo, e não no conteúdo
-        if (event.target === modal) {
+        const modalContent = modal.querySelector("div.bg-white");
+        if (!modalContent.contains(event.target)) {
             modal.classList.add("hidden");
         }
     });
@@ -175,7 +200,6 @@ function initCarousel() {
     carousel.addEventListener("mouseleave", () => {
         carouselScroll = setInterval(function () {
             carousel.scrollLeft += 1;
-
             if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
                 carousel.scrollLeft = 0;
             }
